@@ -4,6 +4,7 @@ import re
 from pathlib import Path
 from typing import Any, Dict, List
 
+from loguru import logger
 from markitdown import MarkItDown
 from qdrant_client.http.models import (
     Distance,
@@ -62,7 +63,7 @@ def process_pdf_file(
         return processed
 
     except Exception as e:
-        print(f"⚠️ Erro ao processar {pdf_name}: {e}")
+        logger.error(f"⚠️ Erro ao processar {pdf_name}: {e}")
         return []
 
 
@@ -80,14 +81,14 @@ def main(collection: str = "sumulas_jornada", pasta_pdfs: str = "sumulas"):
                 "text-sparse": SparseVectorParams()  # sem size para esparso
             },
         )
-        print(f"Coleção '{collection}' criada.")
+        logger.info(f"Coleção '{collection}' criada.")
     else:
-        print(f"Coleção '{collection}' já existe.")
+        logger.info(f"Coleção '{collection}' já existe.")
 
     vector_store = embedder.get_qdrant_vector_store(collection)
     pdf_files = list(Path(pasta_pdfs).glob("*.pdf"))
     if not pdf_files:
-        print("Nenhum PDF encontrado na pasta.")
+        logger.info("Nenhum PDF encontrado na pasta.")
         return
 
     total_chunks = 0
@@ -100,7 +101,7 @@ def main(collection: str = "sumulas_jornada", pasta_pdfs: str = "sumulas"):
         vector_store.add_texts(texts=texts, metadatas=metadatas)
         total_chunks += len(chunks)
 
-    print(
+    logger.success(
         f"✅ {len(pdf_files)} PDFs processados. {total_chunks} chunks inseridos no Qdrant."
     )
 
