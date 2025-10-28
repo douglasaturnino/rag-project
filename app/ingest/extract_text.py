@@ -1,11 +1,17 @@
-import os
 import json
+import os
 import re
 from pathlib import Path
-from typing import Dict, List, Any
-from qdrant_client import models
-from qdrant_client.http.models import Distance, VectorParams, SparseVectorParams
+from typing import Any, Dict, List
+
 from markitdown import MarkItDown
+from qdrant_client import models
+from qdrant_client.http.models import (
+    Distance,
+    SparseVectorParams,
+    VectorParams,
+)
+
 from app.ingest.embed_qdrant import EmbeddingSelfQuery
 
 md = MarkItDown()
@@ -61,7 +67,9 @@ Texto da súmula:
     try:
         response = embedder.llm.invoke(prompt)
         json_text = (
-            re.sub(r"```[\w-]*", "", response.content).replace("```", "").strip()
+            re.sub(r"```[\w-]*", "", response.content)
+            .replace("```", "")
+            .strip()
         )
         data = json.loads(json_text)
 

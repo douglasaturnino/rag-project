@@ -1,10 +1,14 @@
+from dataclasses import dataclass
 from typing import List, Optional
 
 from langchain.retrievers.self_query.base import SelfQueryRetriever
 from langchain_core.documents import Document
+
 from app.ingest.embed_qdrant import EmbeddingSelfQuery
-from app.retrieval.self_query import document_content_description, metadata_field_info
-from dataclasses import dataclass
+from app.retrieval.self_query import (
+    document_content_description,
+    metadata_field_info,
+)
 
 
 @dataclass

@@ -1,18 +1,18 @@
-from typing import Annotated, List, Dict, Any, Generator, TypedDict
 import re
+from typing import Annotated, Any, Dict, Generator, List, TypedDict
 
 from langchain_core.documents import Document
-from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
-from langgraph.graph import StateGraph, END
-from langgraph.graph.message import add_messages
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import RunnableConfig
 from langchain_core.structured_query import StructuredQuery
 from langfuse.langchain import CallbackHandler
-from langchain_core.runnables import RunnableConfig
+from langgraph.graph import END, StateGraph
+from langgraph.graph.message import add_messages
 
-from app.ingest.embed_qdrant import EmbeddingSelfQuery
-from app.retrieval.retriever import build_self_query_retriever, SelfQueryConfig
 from app.graph.prompt import SYSTEM_PROMPT_JURIDICO
+from app.ingest.embed_qdrant import EmbeddingSelfQuery
+from app.retrieval.retriever import SelfQueryConfig, build_self_query_retriever
 
 langfuse_handler = CallbackHandler()
 
@@ -33,7 +33,9 @@ def _format_filter_for_display(filter_obj: Any) -> str:
     if not filter_obj:
         return "Nenhum filtro aplicado."
     raw_str = str(filter_obj)
-    raw_str = re.sub(r"Operation\(operator=<Operator\..*?>,\s*arguments=", "", raw_str)
+    raw_str = re.sub(
+        r"Operation\(operator=<Operator\..*?>,\s*arguments=", "", raw_str
+    )
     raw_str = re.sub(
         r"Comparator\(attribute='(.*?)',\s*operator=<Comparator\..*?>,\s*value='(.*?)'\)",
         r"\1 = '\2'",
@@ -78,7 +80,9 @@ def retrieve(
     return {
         "docs": docs,
         "generated_query": structured_query.query,
-        "generated_filter": _format_filter_for_display(structured_query.filter),
+        "generated_filter": _format_filter_for_display(
+            structured_query.filter
+        ),
     }
 
 
@@ -108,7 +112,9 @@ def generate_stream(state: RAGState, config: RunnableConfig) -> Dict[str, Any]:
 
 
 # --- Construção do Grafo ---
-def build_streaming_graph(collection_name: str = "sumulas_jornada", k: int = 5):
+def build_streaming_graph(
+    collection_name: str = "sumulas_jornada", k: int = 5
+):
     """Compila o grafo LangGraph com os nós para streaming."""
     graph = StateGraph(RAGState)
     graph.add_node(

@@ -1,6 +1,5 @@
 from langchain.chains.query_constructor.schema import AttributeInfo
 
-
 metadata_field_info = [
     AttributeInfo(
         name="num_sumula",
@@ -17,7 +16,9 @@ metadata_field_info = [
     ),
     AttributeInfo(
         name="data_status",
-        description=("Data textual no formato 'DD/MM/AA' (string). Ex.: '07/04/14'.\n"),
+        description=(
+            "Data textual no formato 'DD/MM/AA' (string). Ex.: '07/04/14'.\n"
+        ),
         type="string",
     ),
     AttributeInfo(
