@@ -52,7 +52,7 @@ def process_pdf_file(
             metadata = {
                 "num_sumula": metadados.get("num_sumula"),
                 "data_status": metadados.get("data_status"),
-                "data_status_ano": metadados.get("data_status_ano"),
+                "data_status_ano": int(metadados.get("data_status_ano")),
                 "status_atual": metadados.get("status_atual"),
                 "pdf_name": metadados.get("pdf_name", pdf_name),
                 "chunk_type": tipo,
@@ -67,23 +67,37 @@ def process_pdf_file(
         return []
 
 
-def main(collection: str = "sumulas_jornada", pasta_pdfs: str = "sumulas"):
+def create_collection_if_not_exists(
+    embedder: EmbeddingSelfQuery, collection: str
+):
+    # Cria coleção se não existir
+
+    if embedder.client.collection_exists(collection_name=collection):
+        logger.info(f"Coleção '{collection}' já existe.")
+        return
+
+    embedder.client.create_collection(
+        collection_name=collection,
+        vectors_config={
+            "text-dense": VectorParams(
+                size=embedder.model.model.embedding_size,
+                distance=Distance.COSINE,
+            )
+        },
+        sparse_vectors_config={
+            "text-sparse": SparseVectorParams()  # sem size para esparso
+        },
+    )
+    logger.info(f"Coleção '{collection}' criada.")
+
+
+def main(
+    collection: str = "sumulas_jornada",
+    pasta_pdfs: str = "sumulas",
+):
     embedder = EmbeddingSelfQuery()
 
-    # Cria coleção se não existir
-    if not embedder.client.collection_exists(collection_name=collection):
-        embedder.client.create_collection(
-            collection_name=collection,
-            vectors_config={
-                "text-dense": VectorParams(size=3072, distance=Distance.COSINE)
-            },
-            sparse_vectors_config={
-                "text-sparse": SparseVectorParams()  # sem size para esparso
-            },
-        )
-        logger.info(f"Coleção '{collection}' criada.")
-    else:
-        logger.info(f"Coleção '{collection}' já existe.")
+    create_collection_if_not_exists(embedder, collection)
 
     vector_store = embedder.get_qdrant_vector_store(collection)
     pdf_files = list(Path(pasta_pdfs).glob("*.pdf"))
@@ -93,6 +107,7 @@ def main(collection: str = "sumulas_jornada", pasta_pdfs: str = "sumulas"):
 
     total_chunks = 0
     for pdf_file in pdf_files:
+        logger.debug(f"Processando {pdf_file.name}.")
         chunks = process_pdf_file(str(pdf_file), embedder)
         if not chunks:
             continue
@@ -100,6 +115,7 @@ def main(collection: str = "sumulas_jornada", pasta_pdfs: str = "sumulas"):
         metadatas = [c["metadata"] for c in chunks]
         vector_store.add_texts(texts=texts, metadatas=metadatas)
         total_chunks += len(chunks)
+        logger.debug(f"{pdf_file.name} processada.")
 
     logger.success(
         f"✅ {len(pdf_files)} PDFs processados. {total_chunks} chunks inseridos no Qdrant."
