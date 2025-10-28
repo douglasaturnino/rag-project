@@ -5,13 +5,13 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 from markitdown import MarkItDown
-from qdrant_client import models
 from qdrant_client.http.models import (
     Distance,
     SparseVectorParams,
     VectorParams,
 )
 
+from app.graph.prompt import PROMPT_EXTRACT
 from app.ingest.embed_qdrant import EmbeddingSelfQuery
 
 md = MarkItDown()
@@ -28,41 +28,9 @@ def process_pdf_file(
     text_content = result.text_content or ""
 
     # Prompt de extração
-    prompt = f"""
-Você é um especialista jurídico do Tribunal de Contas de Minas Gerais.
-Analise o texto abaixo e extraia:
-
-1️⃣ Metadados:
-- num_sumula: número da súmula (ex: 71)
-- data_status: última data (formato DD/MM/AA)
-- data_status_ano: última data (formato AAAA)
-- status_atual: último status (VIGENTE, REVOGADA, ALTERADA, etc.)
-- pdf_name: nome do arquivo PDF
-
-2️⃣ Chunks (máximo de 3):
-- conteudo_principal: texto vigente até antes de 'REFERÊNCIAS NORMATIVAS'
-- referencias_normativas: texto após 'REFERÊNCIAS NORMATIVAS:' até antes de 'PRECEDENTES:'
-- precedentes: texto após 'PRECEDENTES:' até o final
-
-Retorne **somente** um JSON no formato:
-{{
-  "metadados": {{
-    "num_sumula": "...",
-    "data_status": "...",
-    "data_status_ano": "...",
-    "status_atual": "...",
-    "pdf_name": "{pdf_name}"
-  }},
-  "chunks": {{
-    "conteudo_principal": "...",
-    "referencias_normativas": "...",
-    "precedentes": "..."
-  }}
-}}
-
-Texto da súmula:
-{text_content[:12000]}
-"""
+    prompt = PROMPT_EXTRACT.format(
+        pdf_name=pdf_name, text_content=text_content[:12000]
+    )
 
     try:
         response = embedder.llm.invoke(prompt)

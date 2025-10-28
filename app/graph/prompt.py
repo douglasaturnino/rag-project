@@ -24,3 +24,39 @@ Estruture sua resposta da seguinte maneira:
 - Fundamente TODA a sua resposta *exclusivamente* no contexto fornecido.
 - Não adicione opiniões, interpretações, exemplos ou informações externas de qualquer natureza. Apenas transcreva o que está no contexto.
 """
+
+PROMPT_EXTRACT = """
+Você é um especialista jurídico do Tribunal de Contas de Minas Gerais.
+Analise o texto abaixo e extraia:
+
+1️⃣ Metadados:
+- num_sumula: número da súmula (ex: 71)
+- data_status: última data (formato DD/MM/AA)
+- data_status_ano: última data (formato AAAA)
+- status_atual: último status (VIGENTE, REVOGADA, ALTERADA, etc.)
+- pdf_name: nome do arquivo PDF
+
+2️⃣ Chunks (máximo de 3):
+- conteudo_principal: texto vigente até antes de 'REFERÊNCIAS NORMATIVAS'
+- referencias_normativas: texto após 'REFERÊNCIAS NORMATIVAS:' até antes de 'PRECEDENTES:'
+- precedentes: texto após 'PRECEDENTES:' até o final
+
+Retorne **somente** um JSON no formato:
+{{
+  "metadados": {{
+    "num_sumula": "...",
+    "data_status": "...",
+    "data_status_ano": "...",
+    "status_atual": "...",
+    "pdf_name": "{pdf_name}"
+  }},
+  "chunks": {{
+    "conteudo_principal": "...",
+    "referencias_normativas": "...",
+    "precedentes": "..."
+  }}
+}}
+
+Texto da súmula:
+{text_content}
+"""
