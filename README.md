@@ -1,5 +1,7 @@
 # Pipeline RAG completa: Ingestão, Consulta e Obserabilidade
 
+Este projeto foi feito acompanhando a live da [jornada de dados](https://www.youtube.com/watch?v=9i6r90i17iA)
+
 Este projeto demonstra como construir um **pipeline completo de Recuperação e Geração (RAG)** usando:
 - **LangChain** → integração entre LLMs e bancos vetoriais.  
 - **LangGraph** → orquestração de nós e controle de fluxo.  
@@ -15,32 +17,23 @@ O objetivo é mostrar, de forma prática, como montar uma aplicação jurídica 
 
 ```
 rag-project/
-├── app/
-│   ├── graph/
-│   │   ├── rag_graph.py      # Grafo principal do LangGraph
-│   │   └── prompt.py         # Prompts e templates do LLM
-│   ├── ingest/
+├── app
+│   ├── graph
+│   │   ├── prompt.py         # Prompts e templates do LLM
+│   │   └── rag_graph.py      # Grafo principal do LangGraph 
+│   ├── ingest
 │   │   ├── embed_qdrant.py   # Embeddings e conexão com Qdrant
-│   │   └── extract_text.py   # Extração de texto e metadados dos PDFs
-│   ├── retrieval/
+│   │   ├── extract_text.py   # Extração de texto e metadados dos PDFs
+│   ├── retrieval
 │   │   ├── retriever.py      # SelfQueryRetriever + Qdrant
 │   │   └── self_query.py     # Definição dos metadados e filtros
-│   ├── app.py                # Interface Streamlit
-│   └── settings.py           # Configurações globais do app
-│
-├── requirements.txt
+│   └── utils
+│       └── settings.py       # Configurações globais do app
+├── app.py                    # Interface Streamlit
+├── injest_text.py            # Arquivo inicial para processar os PDFs
+├── pyproject.toml            
 ├── README.md
-└── Dockerfile (opcional)
 ```
-
----
-
-## 🧩 Arquitetura Geral
-
-![alt text](image-1.png)
-
-
----
 
 ## 🧠 Conceitos-Chave
 
@@ -70,7 +63,7 @@ rag-project/
 - Clonar o repositório:
 
 ```bash
-git clone https://github.com/seu-usuario/rag-project.git
+git clone https://github.com/douglasaturnino/rag-project.git
 cd rag-project
 ```
 
@@ -82,16 +75,20 @@ cd rag-project
 docker run -d --name qdrant -p 6333:6333 qdrant/qdrant
 ```
 
+
 ---
 
 ### 3️⃣ Configurar variáveis de ambiente
 
-Crie um arquivo `.env` na raiz do projeto:
+Renomeie o arquivo `env.example` para `.env` na raiz do projeto:
 
 ```env
-OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxx
-LANGFUSE_PUBLIC_KEY=pk-xxxxxxxxxxxxxxxxxx
-LANGFUSE_SECRET_KEY=sk-xxxxxxxxxxxxxxxxxx
+TEMPERATURE=0
+GOOGLE_API_KEY="<GOOGLE_API_KEY>"
+# OPENAI_API_KEY="<OPENAI_API_KEY>"
+MODEL_NAME=google_genai:gemini-2.5-flash      # "openai:o3-mini"
+LANGFUSE_PUBLIC_KEY="<LANGFUSE_PUBLIC_KEY>"
+LANGFUSE_SECRET_KEY="<LANGFUSE_SECRET_KEY>"
 LANGFUSE_HOST=https://us.cloud.langfuse.com
 QDRANT_HOST=localhost
 QDRANT_PORT=6333
@@ -101,10 +98,18 @@ QDRANT_PORT=6333
 
 ### 4️⃣ Instalar dependências
 
+### Para instalar utilizando o pip
+
 ```bash
 python -m venv .venv
 source .venv/bin/activate     # (ou .venv\Scripts\activate no Windows)
 pip install -r requirements.txt
+```
+### Para instalar utilizando o uv
+
+```bash
+uv sync  
+source .venv/bin/activate     # (ou .venv\Scripts\activate no Windows)
 ```
 
 ---
@@ -118,7 +123,7 @@ Você pode baixar documentos oficiais do TCE-MG aqui:
 Depois execute:
 
 ```bash
-python app/ingest/extract_text.py
+python injest_text.py
 ```
 
 Isso criará a coleção `sumulas_jornada` no Qdrant, extraindo texto e metadados automaticamente.
@@ -128,7 +133,7 @@ Isso criará a coleção `sumulas_jornada` no Qdrant, extraindo texto e metadado
 ### 6️⃣ Executar o app
 
 ```bash
-streamlit run app/app.py
+streamlit run app.py
 ```
 
 Abra o navegador em **http://localhost:8501**.
@@ -171,6 +176,7 @@ AttributeInfo(
 
 ## 📊 Observabilidade com Langfuse
 
+O projeto utiliza a cloud langfuse para a observabilidade então será necessario fazer o cadastro na plataforma 
 Cada execução é rastreada no painel da Langfuse, incluindo:
 
 - Prompt e contexto usados  
@@ -189,5 +195,5 @@ para visualizar seus **traces em tempo real**.
 - 💾 [Qdrant LangChain API](https://python.langchain.com/api_reference/qdrant/qdrant/langchain_qdrant.qdrant.QdrantVectorStore.html) – integração vetorial.  
 - 🔍 [SelfQueryRetriever Docs](https://python.langchain.com/api_reference/langchain/retrievers/langchain.retrievers.self_query.base.SelfQueryRetriever.html)  
 - ⚙️ [Qdrant Quickstart](https://qdrant.tech/documentation/quickstart/)  
-
+- 📚 [Jornada de Dados](https://www.youtube.com/watch?v=9i6r90i17iA)
 ---
