@@ -1,4 +1,20 @@
-# app/prompt.py
+"""
+SYSTEM_PROMPT_JURIDICO: Este é um prompt de sistema que define a estrutura e as diretrizes para
+  o modelo de IA responder perguntas jurídicas.
+
+  Argumento:
+    question: A pergunta do usuário que deve ser respondida.
+    context: O conjunto de trechos de documentos (súmulas)
+      fornecidos para responder à pergunta.
+
+PROMPT_EXTRACT: Este prompt é usado para extrair metadados e dividir um documento em
+  chunks específicos.
+
+  Argumento
+    pdf_name: Nome do arquivo PDF que será processado.
+    text_content: O texto da súmula que será analisado.
+
+"""
 
 SYSTEM_PROMPT_JURIDICO = """
 Você é um Assistente Jurídico Especialista, focado em fornecer informações precisas e literais sobre as súmulas do tribunal.

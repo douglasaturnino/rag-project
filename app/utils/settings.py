@@ -5,6 +5,13 @@ from dotenv import find_dotenv, load_dotenv
 
 
 class Settings:
+    """
+    Classe responsável por carregar as configurações do sistema, variáveis de ambiente e definir parâmetros específicos
+    para a aplicação, como as configurações do Qdrant, modelo e chaves da API.
+
+    A classe carrega automaticamente o arquivo `.env` e disponibiliza os valores como atributos de classe.
+    """
+
     load_dotenv()
 
     ENV_FILE = find_dotenv()

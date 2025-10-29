@@ -1,5 +1,28 @@
 from langchain.chains.query_constructor.schema import AttributeInfo
 
+"""
+Lista de informações de atributos (metadados) que descrevem cada campo nas súmulas do Tribunal de Contas de Minas Gerais.
+
+Cada item na lista é um objeto `AttributeInfo`, que descreve um campo específico nos documentos, incluindo o nome do campo (`name`), a descrição detalhada sobre o uso do campo (`description`), e o tipo de dado esperado para o campo (`type`). Esses atributos serão usados para definir as regras de busca e comparação em consultas sobre as súmulas.
+
+A lista contém as seguintes informações:
+
+1. **num_sumula**: Número da súmula, representado como uma string.
+2. **status_atual**: O status atual da súmula (ex: 'VIGENTE', 'REVOGADA', 'ALTERADA'), representado como uma string.
+3. **data_status**: Data de status da súmula no formato 'DD/MM/AA', representada como uma string.
+4. **data_status_ano**: Ano de publicação da súmula, representado como um número inteiro.
+5. **pdf_name**: Nome do arquivo PDF de origem, representado como uma string.
+6. **chunk_type**: Tipo do chunk do documento (ex: 'conteudo_principal', 'referencias_normativas', 'precedentes'), representado como uma string.
+7. **chunk_index**: Índice do chunk dentro do documento, representado como um número inteiro.
+
+Cada `AttributeInfo` é um objeto com a seguinte estrutura:
+    - **name** (str): Nome do campo de metadado.
+    - **description** (str): Descrição detalhada sobre o campo e como ele deve ser utilizado.
+    - **type** (str): Tipo de dado esperado para o campo (ex.: "string", "integer").
+
+Tipo de `metadata_field_info`: `List[AttributeInfo]`
+"""
+
 metadata_field_info = [
     AttributeInfo(
         name="num_sumula",

@@ -19,6 +19,21 @@ langfuse_handler = CallbackHandler()
 
 # Definição do Estado do Grafo
 class RAGState(TypedDict):
+    """
+    Representa o estado do Grafo de Recuperação e Geração (RAG) durante o fluxo de execução.
+
+    Esta classe mantém as informações necessárias para realizar a consulta, recuperar documentos, gerar respostas
+    e manter o histórico de mensagens.
+
+    Attributes:
+        question (str): A pergunta realizada pelo usuário, que será usada para gerar a consulta e recuperar documentos.
+        docs (List[Document]): A lista de documentos recuperados que fornecem contexto para a geração da resposta.
+        answer (Generator[str, None, None]): Um gerador de strings que emite os tokens da resposta gerada em formato de stream.
+        generated_query (str): A consulta gerada com base na pergunta original.
+        generated_filter (str): O filtro gerado para a consulta, formatado para exibição amigável.
+        messages (list): Lista de mensagens (geralmente trocas entre o usuário e o sistema) associadas ao estado atual do fluxo.
+    """
+
     question: str
     docs: List[Document]
     answer: Generator[str, None, None]
@@ -29,7 +44,16 @@ class RAGState(TypedDict):
 
 # --- Funções Auxiliares ---
 def _format_filter_for_display(filter_obj: Any) -> str:
-    """Formata o filtro do LangChain para uma exibição mais amigável."""
+    """
+    Formata o filtro do LangChain para uma exibição mais amigável,
+    convertendo o objeto de filtro em uma string legível.
+
+    Args:
+        filter_obj (Any): Objeto de filtro que será formatado.
+
+    Returns:
+        str: A string representando o filtro formatado de forma amigável.
+    """
     if not filter_obj:
         return "Nenhum filtro aplicado."
     raw_str = str(filter_obj)
@@ -47,6 +71,16 @@ def _format_filter_for_display(filter_obj: Any) -> str:
 
 
 def _format_docs(docs: List[Document]) -> str:
+    """
+    Formata uma lista de documentos em uma string legível, extraindo e organizando
+    as informações de metadados e conteúdo dos documentos.
+
+    Args:
+        docs (List[Document]): Lista de documentos a serem formatados.
+
+    Returns:
+        str: A string representando os documentos formatados.
+    """
     parts = []
     for d in docs:
         md = d.metadata or {}
@@ -64,9 +98,20 @@ def retrieve(
     state: RAGState,
     config: RunnableConfig,
     collection_name: str = "sumulas_jornada",
-    k: int = 5,
+    k: int = 10,
 ) -> Dict[str, Any]:
-    """Nó que executa o SelfQueryRetriever e extrai os detalhes da consulta gerada."""
+    """
+    Executa o SelfQueryRetriever e extrai os detalhes da consulta gerada.
+
+    Args:
+        state (RAGState): O estado atual do grafo, incluindo a pergunta e documentos.
+        config (RunnableConfig): Configuração para execução do grafo.
+        collection_name (str, opcional): Nome da coleção de dados a ser consultada. Padrão é "sumulas_jornada".
+        k (int, opcional): Número de resultados a serem retornados pela consulta. Padrão é 10.
+
+    Returns:
+        Dict[str, Any]: Um dicionário contendo os documentos recuperados, a consulta gerada e o filtro formatado.
+    """
     print("Executando o nó de recuperação...")
     cfg = SelfQueryConfig(collection_name=collection_name, k=k)
     retriever = build_self_query_retriever(cfg)
@@ -87,7 +132,16 @@ def retrieve(
 
 
 def generate_stream(state: RAGState, config: RunnableConfig) -> Dict[str, Any]:
-    """Nó que gera a resposta final em formato de stream."""
+    """
+    Gera a resposta final em formato de stream, utilizando o modelo de linguagem e o prompt definidos.
+
+    Args:
+        state (RAGState): O estado atual do grafo, incluindo a pergunta e documentos.
+        config (RunnableConfig): Configuração para execução do grafo.
+
+    Returns:
+        Dict[str, Any]: Um dicionário contendo o fluxo de resposta gerado.
+    """
     print("Executando o nó de geração...")
     QA_PROMPT = ChatPromptTemplate.from_messages(
         [
@@ -115,7 +169,16 @@ def generate_stream(state: RAGState, config: RunnableConfig) -> Dict[str, Any]:
 def build_streaming_graph(
     collection_name: str = "sumulas_jornada", k: int = 5
 ):
-    """Compila o grafo LangGraph com os nós para streaming."""
+    """
+    Compila o grafo LangGraph com os nós para streaming, incluindo os nós de recuperação e geração.
+
+    Args:
+        collection_name (str, opcional): Nome da coleção de dados a ser consultada. Padrão é "sumulas_jornada".
+        k (int, opcional): Número de resultados a serem retornados pela consulta. Padrão é 5.
+
+    Returns:
+        StateGraph: O grafo compilado com os nós configurados.
+    """
     graph = StateGraph(RAGState)
     graph.add_node(
         "retrieve",
@@ -138,6 +201,12 @@ COMPILED_GRAPH = build_streaming_graph()
 def run_streaming_rag(question: str) -> Generator[Dict[str, Any], None, None]:
     """
     Função de alto nível que executa o fluxo RAG e retorna um gerador de eventos para o frontend.
+
+    Args:
+        question (str): A pergunta a ser processada pelo grafo.
+
+    Returns:
+        Generator[Dict[str, Any], None, None]: Um gerador que emite eventos em formato de dicionário durante o fluxo.
     """
 
     # run_config = {"callbacks": [langfuse_handler], "run_name": "Chat"}
@@ -145,7 +214,7 @@ def run_streaming_rag(question: str) -> Generator[Dict[str, Any], None, None]:
         callbacks=[langfuse_handler],
         run_name="Chat",
         tags=["live-demo", "sumulas"],
-        metadata={"collection": "sumulas_jornada", "k": 5, "user": "Caio"},
+        metadata={"collection": "sumulas_jornada", "k": 10, "user": "Douglas"},
     )
 
     initial_state: RAGState = {"question": question, "messages": []}
