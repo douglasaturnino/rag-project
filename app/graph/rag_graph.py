@@ -52,7 +52,7 @@ def _format_filter_for_display(filter_obj: Any) -> str:
         filter_obj (Any): Objeto de filtro que será formatado.
 
     Returns:
-        str: A string representando o filtro formatado de forma amigável.
+        raw_str (str): A string representando o filtro formatado de forma amigável.
     """
     if not filter_obj:
         return "Nenhum filtro aplicado."
@@ -79,7 +79,7 @@ def _format_docs(docs: List[Document]) -> str:
         docs (List[Document]): Lista de documentos a serem formatados.
 
     Returns:
-        str: A string representando os documentos formatados.
+        (str): A string representando os documentos formatados.
     """
     parts = []
     for d in docs:
@@ -110,7 +110,7 @@ def retrieve(
         k (int, opcional): Número de resultados a serem retornados pela consulta. Padrão é 10.
 
     Returns:
-        Dict[str, Any]: Um dicionário contendo os documentos recuperados, a consulta gerada e o filtro formatado.
+        (Dict[str, Any]): Um dicionário contendo os documentos recuperados, a consulta gerada e o filtro formatado.
     """
     print("Executando o nó de recuperação...")
     cfg = SelfQueryConfig(collection_name=collection_name, k=k)
@@ -140,7 +140,7 @@ def generate_stream(state: RAGState, config: RunnableConfig) -> Dict[str, Any]:
         config (RunnableConfig): Configuração para execução do grafo.
 
     Returns:
-        Dict[str, Any]: Um dicionário contendo o fluxo de resposta gerado.
+        (Dict[str, Any]): Um dicionário contendo o fluxo de resposta gerado.
     """
     print("Executando o nó de geração...")
     QA_PROMPT = ChatPromptTemplate.from_messages(
@@ -168,7 +168,7 @@ def generate_stream(state: RAGState, config: RunnableConfig) -> Dict[str, Any]:
 # --- Construção do Grafo ---
 def build_streaming_graph(
     collection_name: str = "sumulas_jornada", k: int = 5
-):
+) -> StateGraph:
     """
     Compila o grafo LangGraph com os nós para streaming, incluindo os nós de recuperação e geração.
 
@@ -177,7 +177,7 @@ def build_streaming_graph(
         k (int, opcional): Número de resultados a serem retornados pela consulta. Padrão é 5.
 
     Returns:
-        StateGraph: O grafo compilado com os nós configurados.
+        (StateGraph): O grafo compilado com os nós configurados.
     """
     graph = StateGraph(RAGState)
     graph.add_node(
@@ -206,7 +206,7 @@ def run_streaming_rag(question: str) -> Generator[Dict[str, Any], None, None]:
         question (str): A pergunta a ser processada pelo grafo.
 
     Returns:
-        Generator[Dict[str, Any], None, None]: Um gerador que emite eventos em formato de dicionário durante o fluxo.
+        (Generator[Dict[str, Any], None, None]): Um gerador que emite eventos em formato de dicionário durante o fluxo.
     """
 
     # run_config = {"callbacks": [langfuse_handler], "run_name": "Chat"}

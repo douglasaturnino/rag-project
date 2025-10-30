@@ -18,7 +18,7 @@ class SelfQueryConfig:
 
     Esta classe armazena as configurações usadas ao construir o retriever, como o nome da coleção no banco de dados Qdrant e o número de resultados desejados.
 
-    Atributos:
+    Attributes:
         collection_name (str): Nome da coleção do Qdrant (padrão: "sumulas_jornada").
         k (int): Número de resultados a serem retornados na consulta (padrão: 10).
     """
@@ -38,7 +38,7 @@ def build_self_query_retriever(cfg: SelfQueryConfig) -> SelfQueryRetriever:
         cfg (SelfQueryConfig): Configuração contendo o nome da coleção e o número de resultados.
 
     Returns:
-        SelfQueryRetriever: Um objeto configurado para realizar consultas no banco de dados Qdrant com base na configuração fornecida.
+        retriever (SelfQueryRetriever): Um objeto configurado para realizar consultas no banco de dados Qdrant com base na configuração fornecida.
     """
     embedder = EmbeddingSelfQuery()
     vectorstore = embedder.get_qdrant_vector_store(cfg.collection_name)
@@ -69,7 +69,7 @@ def search(
         cfg (Optional[SelfQueryConfig]): A configuração personalizada para o retriever. Se não fornecido, usa a configuração padrão.
 
     Returns:
-        List[Document]: Lista de documentos (`Document`) que correspondem à consulta, incluindo metadados e conteúdo relevante.
+        (List[Document]): Lista de documentos (`Document`) que correspondem à consulta, incluindo metadados e conteúdo relevante.
     """
     cfg = cfg or SelfQueryConfig()
     retriever = build_self_query_retriever(cfg)

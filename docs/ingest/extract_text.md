@@ -1,0 +1,1 @@
+::: app.ingest.extract_text

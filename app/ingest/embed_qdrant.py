@@ -51,7 +51,7 @@ class EmbeddingSelfQuery:
             collection_name (str): Nome da coleção onde os vetores serão armazenados no Qdrant.
 
         Returns:
-            QdrantVectorStore: A instância configurada do `QdrantVectorStore`.
+            (QdrantVectorStore): A instância configurada do `QdrantVectorStore`.
         """
         return QdrantVectorStore(
             client=self.client,

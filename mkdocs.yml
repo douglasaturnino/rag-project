@@ -1,0 +1,36 @@
+site_name: Rag Project
+theme:
+  name: material
+  features:
+    - navigation.top
+    - content.code.copy
+
+markdown_extensions:
+  - pymdownx.highlight
+  - pymdownx.superfences
+
+plugins:
+  - search
+  - autorefs
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            show_root_heading: true
+  - gen-files:
+      scripts:
+        - docs/gen_home_page.py
+
+nav:
+  - index.md
+  - Graph: 
+      - prompt: graph/prompt.md
+      - rag_graph: graph/rag_graph.md
+  - Ingest:
+      - embed_qdrant: ingest/embed_qdrant.md
+      - extract_text: ingest/extract_text.md
+  - retriever:
+      - retriever: retriever/retriever.md
+      - self_query: retriever/self_query.md

@@ -25,17 +25,21 @@ def process_pdf_file(
     Processa um arquivo PDF, extraindo metadados e dividindo o conteúdo em até 3 chunks, retornando uma lista de dicionários.
 
     A função usa o modelo de linguagem do `embedder` para extrair os metadados da súmula e dividir o texto em até três partes principais:
-    1. `conteudo_principal`: O conteúdo principal do documento até a seção de "REFERÊNCIAS NORMATIVAS".
-    2. `referencias_normativas`: O conteúdo entre "REFERÊNCIAS NORMATIVAS:" e "PRECEDENTES:".
-    3. `precedentes`: O conteúdo após a seção de "PRECEDENTES:".
+
+    1. conteudo_principal: O conteúdo principal do documento até a seção de "REFERÊNCIAS NORMATIVAS".
+
+    2. referencias_normativas: O conteúdo entre "REFERÊNCIAS NORMATIVAS:" e "PRECEDENTES:".
+
+    3. precedentes: O conteúdo após a seção de "PRECEDENTES:".
 
     Args:
         file_path (str): Caminho para o arquivo PDF que será processado.
         embedder (EmbeddingSelfQuery): O objeto que contém o modelo de linguagem usado para extrair os metadados e chunks.
 
     Returns:
-        List[Dict[str, Any]]: Uma lista de dicionários contendo os textos dos chunks e seus respectivos metadados.
+        processed (List[Dict[str, Any]]): Uma lista de dicionários contendo os textos dos chunks e seus respectivos metadados.
             Cada dicionário tem a estrutura:
+            ```json
             {
                 "text": <texto do chunk>,
                 "metadata": {
@@ -48,6 +52,7 @@ def process_pdf_file(
                     "chunk_index": <índice do chunk>
                 }
             }
+            ```
     """
 
     pdf_name = os.path.basename(file_path)
@@ -95,7 +100,7 @@ def process_pdf_file(
 
 def create_collection_if_not_exists(
     embedder: EmbeddingSelfQuery, collection: str
-):
+) -> None:
     """
     Cria uma coleção no Qdrant se ela não existir, configurando os parâmetros para vetores densos e esparsos.
 
@@ -105,9 +110,6 @@ def create_collection_if_not_exists(
     Args:
         embedder (EmbeddingSelfQuery): O objeto que contém o cliente Qdrant e o modelo de embeddings.
         collection (str): O nome da coleção a ser criada ou verificada.
-
-    Returns:
-        None
     """
 
     # Cria coleção se não existir
@@ -134,7 +136,7 @@ def create_collection_if_not_exists(
 def main(
     collection: str = "sumulas_jornada",
     pasta_pdfs: str = "sumulas",
-):
+) -> None:
     """
     Função principal que orquestra o processamento de arquivos PDF, a criação de coleções no Qdrant e a adição de vetores.
 
@@ -147,8 +149,6 @@ def main(
         collection (str, opcional): Nome da coleção do Qdrant. Padrão é "sumulas_jornada".
         pasta_pdfs (str, opcional): Caminho da pasta contendo os arquivos PDF a serem processados. Padrão é "sumulas".
 
-    Returns:
-        None
     """
 
     embedder = EmbeddingSelfQuery()

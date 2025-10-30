@@ -1,0 +1,1 @@
+::: app.ingest.embed_qdrant
